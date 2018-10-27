@@ -1,3 +1,4 @@
+open Base
 open Tensorboard
 
 let () =
