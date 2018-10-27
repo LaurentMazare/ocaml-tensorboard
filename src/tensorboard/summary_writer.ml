@@ -46,7 +46,13 @@ let write_event t ~step ~what =
   Out_channel.output_string t.out_channel crc_data_str;
   Out_channel.flush t.out_channel
 
-let create filename =
+let create basename =
+  let filename =
+    Printf.sprintf "%s.tfevents.%d.%s"
+      basename
+      (Unix.time () |> Float.to_int)
+      (Unix.gethostname ())
+  in
   let t =
     { out_channel = Out_channel.create filename
     }
@@ -56,10 +62,41 @@ let create filename =
 
 let write_value t ~step ~name ~value =
   let value =
-    P.Summary_types.default_summary_value ~tag:name ~value:(Simple_value value) ()
+    P.Summary_types.default_summary_value ()
+      ~tag:name ~value:(Simple_value value)
   in
   let summary = P.Summary_types.default_summary ~value:[ value ] () in
   write_event t ~step ~what:(Summary summary)
+
+let write_text t ~step ~name ~text =
+  let string_tensor =
+    let tensor_shape =
+      let one =
+        P.Tensor_shape_types.default_tensor_shape_proto_dim ()
+          ~size:Int64.one
+      in
+      P.Tensor_shape_types.default_tensor_shape_proto ~dim:[ one ] ()
+    in
+    P.Tensor_types.default_tensor_proto ()
+      ~string_val:[ Bytes.of_string text ]
+      ~dtype:Dt_string
+      ~tensor_shape:(Some tensor_shape)
+  in
+  let metadata =
+    let plugin_data =
+      P.Summary_types.default_summary_metadata_plugin_data ()
+        ~plugin_name:"text"
+    in
+    P.Summary_types.default_summary_metadata ~plugin_data:(Some plugin_data) ()
+  in
+  let value =
+    P.Summary_types.default_summary_value ()
+      ~metadata:(Some metadata)
+      ~tag:(name ^ "/text_summary") ~value:(Tensor string_tensor)
+  in
+  let summary = P.Summary_types.default_summary ~value:[ value ] () in
+  write_event t ~step ~what:(Summary summary)
+
 
 let close t =
   Out_channel.close t.out_channel
