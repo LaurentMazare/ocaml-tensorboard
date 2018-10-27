@@ -56,7 +56,7 @@ let create filename =
 
 let write_value t ~step ~name ~value =
   let value =
-    P.Summary_types.default_summary_value ~node_name:name ~value:(Simple_value value) ()
+    P.Summary_types.default_summary_value ~tag:name ~value:(Simple_value value) ()
   in
   let summary = P.Summary_types.default_summary ~value:[ value ] () in
   write_event t ~step ~what:(Summary summary)
