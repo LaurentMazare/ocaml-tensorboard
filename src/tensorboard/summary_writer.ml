@@ -46,13 +46,19 @@ let write_event t ~step ~what =
   Out_channel.output_string t.out_channel crc_data_str;
   Out_channel.flush t.out_channel
 
-let create basename =
-  let filename =
-    Printf.sprintf "%s.tfevents.%d.%s"
-      basename
+let create dirname =
+  if not (Caml.Sys.file_exists dirname)
+  then Unix.mkdir dirname 0o755;
+  if Caml.Sys.file_exists dirname && not (Caml.Sys.is_directory dirname)
+  then
+    raise (Invalid_argument
+      (Printf.sprintf "[create_dirname]: %s is not a directory" dirname));
+  let basename =
+    Printf.sprintf "out.tfevents.%d.%s"
       (Unix.time () |> Float.to_int)
       (Unix.gethostname ())
   in
+  let filename = Caml.Filename.concat dirname basename in
   let t =
     { out_channel = Out_channel.create filename
     }
