@@ -14,11 +14,9 @@ remove:  []
 
 depends: [
   "base" {>= "0.11.0"}
-  "ppx_custom_printf"
-  "ppx_sexp_conv"
-  "base"
   "bigstringaf"
   "stdio"
+  "ocaml" {>= "4.06"}
   "ocamlfind" {build}
   "dune" {build}
 ]
@@ -28,5 +26,3 @@ depopts: [
 
 conflicts: [
 ]
-
-available: [ ocaml-version >= "4.06" ]
