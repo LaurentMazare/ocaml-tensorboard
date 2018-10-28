@@ -8,7 +8,7 @@ authors:      [ "Laurent Mazare" ]
 
 version: "dev"
 
-build: [["dune" "build" "--only-packages" "tensorboard" "--root" "." "-j" jobs "@install"]]
+build: [["dune" "build" "-p" name "-j" jobs]]
 install: []
 remove:  []
 
@@ -17,7 +17,6 @@ depends: [
   "bigstringaf"
   "stdio"
   "ocaml" {>= "4.06"}
-  "ocamlfind" {build}
   "dune" {build}
 ]
 
