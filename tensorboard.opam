@@ -13,7 +13,7 @@ install: []
 remove:  []
 
 depends: [
-  "base" {>= "0.11.0"}
+  "base" {>= "v0.11.0"}
   "bigstringaf"
   "stdio"
   "ocaml" {>= "4.06"}
