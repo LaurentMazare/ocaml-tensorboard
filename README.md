@@ -8,13 +8,19 @@ what happens during the training of a TensorFlow based model.
 TensorBoard events are logged for some specified step (which is an increasing integer)
 and can embed scalars, text, images, histograms...
 
-```ocaml
-open Tensorboard
+Installation can be made via opam.
+```
+opam install tensorboard
+```
 
-let summary_writer = Summary_writer.create "/tmp/tensorboard-logs" in
-Summary_writer.write_value summary_writer ~step:14 ~name:"value/3" ~value:42.0;
-Summary_writer.write_text summary_writer ~step:28 ~name:"txt" ~text:"foobar";
-Summary_writer.close summary_writer
+Here is an example of code writing some TensorBoard values.
+```ocaml
+module Sw = Tensorboard.Summary_writer
+
+let sw = Sw.create "/tmp/tensorboard-logs" in
+Sw.write_value sw ~step:14 ~name:"value/3" ~value:42.0;
+Sw.write_text sw ~step:28 ~name:"txt" ~text:"foobar";
+Sw.close sw
 ```
 
 Part of the code comes from [ocaml-protoc](https://github.com/mransan/ocaml-protoc) and
