@@ -1,5 +1,6 @@
 open Base
 open Stdio
+module P = Tensorboard_protobuf
 
 type t =
   { out_channel : Out_channel.t
@@ -42,3 +43,34 @@ let create ~filename =
 
 let close t =
   Out_channel.close t.out_channel
+
+type feature = [ `f of float list | `b of bytes list | `i of Int64.t list ]
+
+let make_feature = function
+  | `f value -> P.Feature_types.Float_list { value }
+  | `b value -> P.Feature_types.Bytes_list { value }
+  | `i value -> P.Feature_types.Int64_list { value }
+
+let feature_of_example example =
+  List.map example ~f:(fun (name, feature) ->
+      name, make_feature feature)
+
+let write_example t example =
+  let encoder = P.Protobuf.Encoder.create () in
+  let feature = feature_of_example example in
+  P.Example_pb.encode_example { features = Some { feature } } encoder;
+  write t (P.Protobuf.Encoder.to_string encoder)
+
+let write_sequence_example t ~context ~feature_lists =
+  let encoder = P.Protobuf.Encoder.create () in
+  let feature_list =
+    List.map feature_lists ~f:(fun (name, feature_list) ->
+        let feature = List.map feature_list ~f:make_feature in
+        name, { P.Feature_types.feature })
+  in
+  P.Example_pb.encode_sequence_example
+    { context = Some { feature = feature_of_example context }
+    ; feature_lists = Some { feature_list }
+    }
+    encoder;
+  write t (P.Protobuf.Encoder.to_string encoder)

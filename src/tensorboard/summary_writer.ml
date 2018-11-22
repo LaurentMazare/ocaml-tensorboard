@@ -1,7 +1,7 @@
 open Base
 module P = Tensorboard_protobuf
 
-type t = Tf_record.t
+type t = Tf_record_writer.t
 
 let write_event t ~step ~what =
   let encoder = P.Protobuf.Encoder.create () in
@@ -12,8 +12,7 @@ let write_event t ~step ~what =
     }
   in
   P.Event_pb.encode_event event encoder;
-  let data = P.Pbrt.Encoder.to_bytes encoder |> Bytes.to_string in
-  Tf_record.write t data
+  Tf_record_writer.write t (P.Protobuf.Encoder.to_string encoder)
 
 let create dirname =
   if not (Caml.Sys.file_exists dirname)
@@ -28,7 +27,7 @@ let create dirname =
       (Unix.gethostname ())
   in
   let filename = Caml.Filename.concat dirname basename in
-  let t = Tf_record.create ~filename in
+  let t = Tf_record_writer.create ~filename in
   write_event t ~step:0 ~what:(File_version "brain.Event:2");
   t
 
@@ -69,4 +68,4 @@ let write_text t ~step ~name ~text =
   let summary = P.Summary_types.default_summary ~value:[ value ] () in
   write_event t ~step ~what:(Summary summary)
 
-let close = Tf_record.close
+let close = Tf_record_writer.close

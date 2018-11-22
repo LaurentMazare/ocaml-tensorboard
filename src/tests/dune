@@ -1,0 +1,6 @@
+(library
+ (name tensorboard_tests)
+ (inline_tests)
+ (libraries sexplib stdio tensorboard)
+ (preprocess (pps ppx_custom_printf ppx_sexp_conv ppx_expect)))
+
